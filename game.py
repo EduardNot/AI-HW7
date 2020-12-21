@@ -5,6 +5,7 @@ import pygame
 import sys
 import random
 import copy
+from Bird import Bird
 
 WIN_WIDTH = 575
 WIN_HEIGHT = 800
@@ -61,9 +62,9 @@ if __name__ == '__main__':
     pygame.time.set_timer(SPAWNPIPE, 1200)
     pipes = Pipes()
 
-    GRAVITY = 0.25
-    BIRD_MOVEMENT = 0
     BASE_X_POS = 0
+
+    bird = Bird(BIRD_IMG, BIRD_RECT)
 
     while True:
         for event in pygame.event.get():
@@ -79,9 +80,8 @@ if __name__ == '__main__':
 
         screen.blit(BG_IMG, (0, 0))
 
-        BIRD_MOVEMENT += GRAVITY
-        BIRD_RECT.centery += BIRD_MOVEMENT
-        screen.blit(BIRD_IMG, BIRD_RECT)
+        bird.move(screen)
+        bird.collision()
 
         pipes.move()
         pipes.remove_pipe()
