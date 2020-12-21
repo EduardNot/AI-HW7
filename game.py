@@ -73,15 +73,14 @@ if __name__ == '__main__':
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    BIRD_MOVEMENT = 0
-                    BIRD_MOVEMENT -= 8
+                    bird.jump()
             if event.type == SPAWNPIPE:
                 pipes.add()
 
         screen.blit(BG_IMG, (0, 0))
 
         bird.move(screen)
-        bird.collision()
+        bird.collision(pipes.pipe_list)
 
         pipes.move()
         pipes.remove_pipe()
