@@ -9,7 +9,8 @@ from Bird import Bird
 
 WIN_WIDTH = 575
 WIN_HEIGHT = 800
-
+GAME_ACTIVE = True
+score = 0
 
 class Pipes:
     pipe_list = []
@@ -44,11 +45,17 @@ def draw_base():
     screen.blit(BASE_IMG, (BASE_X_POS, 700))
     screen.blit(BASE_IMG, (BASE_X_POS + 575, 700))
 
+def score_display():
+    score_surface = game_font.render(str(int(score)), True, (255,255,255))
+    score_rect = score_surface.get_rect(center = (288,100))
+    screen.blit(score_surface, score_rect)
 
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
+
+    game_font = pygame.font.Font('04B_19.ttf', 40)
 
     BIRD_IMG = pygame.transform.scale(pygame.image.load('assets/bird1.png'), (51, 36)).convert()
     # BIRD_IMG = pygame.transform.scale2x(pygame.image.load('assets/bird1.png')).convert()
@@ -72,18 +79,29 @@ if __name__ == '__main__':
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and GAME_ACTIVE:
                     bird.jump()
+                if event.key == pygame.K_SPACE and GAME_ACTIVE == False:
+                    GAME_ACTIVE = True
+                    BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
+                    bird = Bird(BIRD_IMG, BIRD_RECT)
+                    pipes.pipe_list.clear()
+                    score = 0
+
             if event.type == SPAWNPIPE:
                 pipes.add()
 
         screen.blit(BG_IMG, (0, 0))
 
-        bird.move(screen)
-        bird.collision(pipes.pipe_list)
+        if GAME_ACTIVE:
+            bird.move(screen)
+            GAME_ACTIVE = bird.collision(pipes.pipe_list)
 
-        pipes.move()
-        pipes.remove_pipe()
+            pipes.move()
+            pipes.remove_pipe()
+
+            score_display()
+            score += 0.0073
 
         BASE_X_POS -= 1
         draw_base()
