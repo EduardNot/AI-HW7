@@ -2,7 +2,7 @@ import random
 
 
 class Pipe:
-    gap = 200
+    gap = 175
     PIPE_TOP = None
     PIPE_BOTTOM = None
     passed = False

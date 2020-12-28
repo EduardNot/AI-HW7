@@ -39,11 +39,11 @@ def print_alive(birds):
 
 def score_display(score, high_score):
     score_surface = STAT_FONT.render(f"Score: {score}", True, (255, 255, 255))
-    score_rect = score_surface.get_rect(center=(500, 45))
+    score_rect = score_surface.get_rect(center=(485, 45))
     screen.blit(score_surface, score_rect)
 
     high_score_surface = STAT_FONT.render(f"High Score: {high_score}", True, (255, 255, 255))
-    high_score_rect = high_score_surface.get_rect(center=(455, 20))
+    high_score_rect = high_score_surface.get_rect(center=(440, 20))
     screen.blit(high_score_surface, high_score_rect)
 
 
@@ -100,7 +100,7 @@ def eval(genomes, config):
 
         pipe_idx = 0
         if len(birds) > 0:
-            if len(pipes) > 1 and pipes[0].passed:
+            if len(pipes) > 1 and pipes[0].passed and birds[0].BIRD_RECT.centerx > pipes[0].PIPE_BOTTOM.topright[1]:
                 pipe_idx = 1
 
         for i, bird in enumerate(birds):
