@@ -8,11 +8,12 @@ import neat
 import pygame
 
 from Bird import Bird
-from Pipes import Pipes
+from Pipe import Pipe
 from Base import Base
 
 WIN_WIDTH = 575
 WIN_HEIGHT = 800
+high_score = 0
 
 pygame.init()
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -27,41 +28,65 @@ BASE_IMG = pygame.transform.scale2x(pygame.image.load('assets/base.png')).conver
 PIPE_IMG = pygame.transform.scale2x(pygame.image.load('assets/pipe.png')).convert()
 PIPE_IMG_REV = pygame.transform.flip(PIPE_IMG, False, True).convert()
 START_GAME_SUFACE = pygame.image.load('assets/message.png').convert_alpha()
-
-SPAWNPIPE = pygame.USEREVENT
-pygame.time.set_timer(SPAWNPIPE, 900)
+STAT_FONT = pygame.font.SysFont("comicsans", 50)
 
 
-def score_display(score):
-    score_surface = game_font.render(str(int(score)), True, (255, 255, 255))
-    score_rect = score_surface.get_rect(center=(288, 100))
+def print_alive(birds):
+    alive_surface = STAT_FONT.render(f"Alive: {birds}", True, (255, 255, 255))
+    alive_rect = alive_surface.get_rect(center=(70, 20))
+    screen.blit(alive_surface, alive_rect)
+
+
+def score_display(score, high_score):
+    score_surface = STAT_FONT.render(f"Score: {score}", True, (255, 255, 255))
+    score_rect = score_surface.get_rect(center=(500, 45))
     screen.blit(score_surface, score_rect)
+
+    high_score_surface = STAT_FONT.render(f"High Score: {high_score}", True, (255, 255, 255))
+    high_score_rect = high_score_surface.get_rect(center=(455, 20))
+    screen.blit(high_score_surface, high_score_rect)
 
 
 def update_score(pipes, bird):
-    for pipe in pipes.pipe_list:
+    for pipe in pipes:
         if not pipe.passed and pipe.PIPE_BOTTOM.centerx < bird.BIRD_RECT.centerx:
             pipe.passed = True
             return True
     return False
 
 
+def remove_pipe(pipes):
+    pipes_new = []
+    for i in range(len(pipes)):
+        if pipes[i].PIPE_BOTTOM.centerx > -50:
+            pipes_new.append(pipes[i])
+    return pipes_new
+
+
+def add_pipe(pipes, bird):
+    for pipe in pipes:
+        if bird.BIRD_RECT.centerx + 100 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
+            pipe.next_pipe = True
+            return True
+    return False
+
+
 def eval(genomes, config):
-    BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
+    global high_score
 
     birds = []
     nets = []
     genes = []
-
     for g_id, genome in genomes:
         genome.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
+        BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
         birds.append(Bird(BIRD_IMG, BIRD_RECT))
         genes.append(genome)
 
     base = Base(BASE_IMG)
-    pipes = Pipes(PIPE_IMG, PIPE_IMG_REV)
+    pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
     score = 0
 
     game = True
@@ -70,55 +95,59 @@ def eval(genomes, config):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            # if event.type == SPAWNPIPE:
-            #     pipes.add()
 
         screen.blit(BG_IMG, (0, 0))
-        score_display(score)
 
         pipe_idx = 0
         if len(birds) > 0:
-            if len(pipes.pipe_list) > 1 and pipes.pipe_list[0].passed:
+            if len(pipes) > 1 and pipes[0].passed:
                 pipe_idx = 1
-        # for i, pipe in enumerate(pipes.pipe_list):
-        #     if not pipe.passed:
-        #         pipe_idx = i
 
         for i, bird in enumerate(birds):
             genes[i].fitness += 0.4
             bird.move()
 
             output = nets[i].activate((bird.BIRD_RECT.y,
-                                       abs(bird.BIRD_RECT.y - pipes.pipe_list[pipe_idx].PIPE_TOP.bottom),
-                                       abs(bird.BIRD_RECT.y - pipes.pipe_list[pipe_idx].PIPE_BOTTOM.top)))
+                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_TOP.bottom),
+                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top)))
             if output[0] > 0.5:
                 bird.jump()
 
         passed_pipe = False
         for bird in birds:
-            if not bird.collision(pipes.pipe_list):
+            if not bird.collision(pipes):
                 genes[birds.index(bird)].fitness -= 1
                 nets.pop(birds.index(bird))
                 genes.pop(birds.index(bird))
                 birds.pop(birds.index(bird))
-            passed_pipe = update_score(pipes, bird)
+            if not passed_pipe:
+                passed_pipe = update_score(pipes, bird)
+            if add_pipe(pipes, bird):
+                pipes.append(Pipe(PIPE_IMG, PIPE_IMG_REV))
 
         if passed_pipe:
             score += 1
-            pipes.add()
             for g in genes:
                 g.fitness += 5
 
         for bird in birds:
             bird.draw(screen)
 
-        pipes.move(screen)
-        pipes.remove_pipe()
+        for pipe in pipes:
+            pipe.move()
+            pipe.draw(screen)
+
+        print_alive(len(birds))
+        score_display(score, high_score)
+
+        pipes = remove_pipe(pipes)
 
         base.move(screen)
 
         pygame.display.update()
         clock.tick(100)
+    if score > high_score:
+        high_score = score
 
 
 def run(config_file):
@@ -127,7 +156,7 @@ def run(config_file):
     pop = neat.Population(config)
     pop.add_reporter(neat.StdOutReporter(True))
     pop.add_reporter(neat.StatisticsReporter())
-    winner = pop.run(eval, 50)
+    winner = pop.run(eval, 100)
 
 
 if __name__ == '__main__':

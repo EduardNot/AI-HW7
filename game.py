@@ -7,7 +7,7 @@ import sys
 import pygame
 
 from Bird import Bird
-from Pipes import Pipes
+from Pipe import Pipe
 from Base import Base
 
 WIN_WIDTH = 575
@@ -29,11 +29,27 @@ def score_display(game_over):
 
 
 def update_score():
-    for pipe in pipes.pipe_list:
+    for pipe in pipes:
         if not pipe.passed and pipe.PIPE_BOTTOM.centerx < bird.BIRD_RECT.centerx:
             pipe.passed = True
-            return score + 1
-    return score
+            return True
+    return False
+
+
+def remove_pipe():
+    pipes_new = []
+    for i in range(len(pipes)):
+        if pipes[i].PIPE_BOTTOM.centerx > -50:
+            pipes_new.append(pipes[i])
+    return pipes_new
+
+
+def add_pipe():
+    for pipe in pipes:
+        if bird.BIRD_RECT.centerx + 200 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
+            pipe.next_pipe = True
+            return True
+    return False
 
 
 if __name__ == '__main__':
@@ -55,14 +71,16 @@ if __name__ == '__main__':
     START_GAME_REC = START_GAME_SUFACE.get_rect(center=(288, 400))
 
     SPAWNPIPE = pygame.USEREVENT
-    pygame.time.set_timer(SPAWNPIPE, 9000)
-    pipes = Pipes(PIPE_IMG, PIPE_IMG_REV)
+    pygame.time.set_timer(SPAWNPIPE, 900)
+
+    pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
 
     bird = Bird(BIRD_IMG, BIRD_RECT)
 
     base = Base(BASE_IMG)
 
     while True:
+        print(pipes)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -74,38 +92,37 @@ if __name__ == '__main__':
                     GAME_ACTIVE = True
                     BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
                     bird = Bird(BIRD_IMG, BIRD_RECT)
-                    pipes.pipe_list.clear()
+                    pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
                     score = 0
 
-            if event.type == SPAWNPIPE:
-                pipes.add()
-
         screen.blit(BG_IMG, (0, 0))
-        # if len(pipes.pipe_list) > 1:
-        #     print("#####PAIR#####")
-        #     print(pipes.pipe_list[1].PIPE_TOP.bottom)
-        #     print(bird.BIRD_RECT.y)
-        #     print(pipes.pipe_list[1].PIPE_BOTTOM.top)
-        #     print(abs(pipes.pipe_list[1].PIPE_TOP.bottom - pipes.pipe_list[1].PIPE_BOTTOM.top))
-        #     print("#####PAIR#####")
 
         if GAME_ACTIVE:
             bird.move()
-            GAME_ACTIVE = bird.collision(pipes.pipe_list)
+            GAME_ACTIVE = bird.collision(pipes)
 
-            pipes.move(screen)
-            pipes.remove_pipe()
+            for pipe in pipes:
+                pipe.move()
 
             score_display(False)
-            score = update_score()
+            passed = update_score()
+            if passed:
+                score += 1
+            if add_pipe():
+                pipes.append(Pipe(PIPE_IMG, PIPE_IMG_REV))
         else:
             screen.blit(START_GAME_SUFACE, START_GAME_REC)
             if score > high_score:
                 high_score = score
             score_display(True)
 
+        pipes = remove_pipe()
+
+        for pipe in pipes:
+            pipe.draw(screen)
+
         base.move(screen)
         bird.draw(screen)
 
         pygame.display.update()
-        clock.tick(30)
+        clock.tick(100)
