@@ -70,8 +70,8 @@ def eval(genomes, config):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == SPAWNPIPE:
-                pipes.add()
+            # if event.type == SPAWNPIPE:
+            #     pipes.add()
 
         screen.blit(BG_IMG, (0, 0))
         score_display(score)
@@ -105,6 +105,7 @@ def eval(genomes, config):
 
         if passed_pipe:
             score += 1
+            pipes.add()
             for g in genes:
                 g.fitness += 5
 
