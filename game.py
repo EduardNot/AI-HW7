@@ -1,5 +1,6 @@
 # ORIGINAL IMAGES FROM https://github.com/samuelcust/flappy-bird-assets
-# BASED ON https://www.youtube.com/watch?v=UZg49z76cLw
+# GAME BASED ON https://www.youtube.com/watch?v=UZg49z76cLw
+# AI BASE ON https://www.youtube.com/watch?v=MPFWsRjDmnU&list=PLzMcBGfZo4-lwGZWXz5Qgta_YNX3_vLS2&index=5
 
 import sys
 
@@ -14,11 +15,6 @@ WIN_HEIGHT = 800
 GAME_ACTIVE = False
 score = 0
 high_score = 0
-
-
-def draw_base():
-    screen.blit(BASE_IMG, (BASE_X_POS, 700))
-    screen.blit(BASE_IMG, (BASE_X_POS + 575, 700))
 
 
 def score_display(game_over):
@@ -59,10 +55,8 @@ if __name__ == '__main__':
     START_GAME_REC = START_GAME_SUFACE.get_rect(center=(288, 400))
 
     SPAWNPIPE = pygame.USEREVENT
-    pygame.time.set_timer(SPAWNPIPE, 900)
+    pygame.time.set_timer(SPAWNPIPE, 9000)
     pipes = Pipes(PIPE_IMG, PIPE_IMG_REV)
-
-    BASE_X_POS = 0
 
     bird = Bird(BIRD_IMG, BIRD_RECT)
 
@@ -87,9 +81,16 @@ if __name__ == '__main__':
                 pipes.add()
 
         screen.blit(BG_IMG, (0, 0))
+        # if len(pipes.pipe_list) > 1:
+        #     print("#####PAIR#####")
+        #     print(pipes.pipe_list[1].PIPE_TOP.bottom)
+        #     print(bird.BIRD_RECT.y)
+        #     print(pipes.pipe_list[1].PIPE_BOTTOM.top)
+        #     print(abs(pipes.pipe_list[1].PIPE_TOP.bottom - pipes.pipe_list[1].PIPE_BOTTOM.top))
+        #     print("#####PAIR#####")
 
         if GAME_ACTIVE:
-            bird.move(screen)
+            bird.move()
             GAME_ACTIVE = bird.collision(pipes.pipe_list)
 
             pipes.move(screen)
@@ -104,6 +105,7 @@ if __name__ == '__main__':
             score_display(True)
 
         base.move(screen)
+        bird.draw(screen)
 
         pygame.display.update()
-        clock.tick(100)
+        clock.tick(30)

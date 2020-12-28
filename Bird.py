@@ -9,9 +9,11 @@ class Bird:
         self.BIRD_IMG = BIRD_IMG
         self.BIRD_RECT = BIRD_RECT
 
-    def move(self, screen):
+    def move(self):
         self.BIRD_MOVEMENT += self.GRAVITY
         self.BIRD_RECT.centery += self.BIRD_MOVEMENT
+
+    def draw(self, screen):
         screen.blit(self.BIRD_IMG, self.BIRD_RECT)
 
     def collision(self, pipes):
