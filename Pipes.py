@@ -10,6 +10,7 @@ class Pipes:
     PIPE_IMG_REV = None
 
     def __init__(self, pipe_img, pipe_img_rev):
+        self.pipe_list = []
         self.PIPE_IMG = pipe_img
         self.PIPE_IMG_REV = pipe_img_rev
         self.add()

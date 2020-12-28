@@ -85,7 +85,7 @@ def eval(genomes, config):
         #         pipe_idx = i
 
         for i, bird in enumerate(birds):
-            genes[i].fitness += 0.1
+            genes[i].fitness += 0.4
             bird.move()
 
             output = nets[i].activate((bird.BIRD_RECT.y,
@@ -96,7 +96,7 @@ def eval(genomes, config):
 
         passed_pipe = False
         for bird in birds:
-            if bird.collision(pipes.pipe_list):
+            if not bird.collision(pipes.pipe_list):
                 genes[birds.index(bird)].fitness -= 1
                 nets.pop(birds.index(bird))
                 genes.pop(birds.index(bird))
@@ -118,7 +118,7 @@ def eval(genomes, config):
         base.move(screen)
 
         pygame.display.update()
-        clock.tick(30)
+        clock.tick(100)
 
 
 def run(config_file):
