@@ -65,7 +65,7 @@ def remove_pipe(pipes):
 
 def add_pipe(pipes, bird):
     for pipe in pipes:
-        if bird.BIRD_RECT.centerx + 100 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
+        if bird.BIRD_RECT.centerx + 80 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
             pipe.next_pipe = True
             return True
     return False
@@ -81,7 +81,7 @@ def eval(genomes, config):
         genome.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
-        BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
+        BIRD_RECT = BIRD_IMG.get_rect(center=(225, 325))
         birds.append(Bird(BIRD_IMG, BIRD_RECT))
         genes.append(genome)
 
@@ -100,8 +100,11 @@ def eval(genomes, config):
 
         pipe_idx = 0
         if len(birds) > 0:
-            if len(pipes) > 1 and pipes[0].passed and birds[0].BIRD_RECT.centerx > pipes[0].PIPE_BOTTOM.topright[1]:
-                pipe_idx = 1
+            if len(pipes) > 1 and pipes[0].passed:
+                # print("HERE!!!!!!!!!!!!!!!")
+                # print(f"bird {birds[0].BIRD_RECT.centerx}. pipe {pipes[0].PIPE_BOTTOM.topright}")
+                if birds[0].BIRD_RECT.centerx > pipes[0].PIPE_BOTTOM.topright[0] + 30:
+                    pipe_idx = 1
 
         for i, bird in enumerate(birds):
             genes[i].fitness += 0.4
@@ -110,7 +113,7 @@ def eval(genomes, config):
             output = nets[i].activate((bird.BIRD_RECT.y,
                                        abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_TOP.bottom),
                                        abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top)))
-            if output[0] > 0.5:
+            if output[0] > 0.8:
                 bird.jump()
 
         passed_pipe = False
@@ -148,6 +151,7 @@ def eval(genomes, config):
         clock.tick(100)
     if score > high_score:
         high_score = score
+    print(f"High score {high_score}")
 
 
 def run(config_file):
@@ -156,7 +160,7 @@ def run(config_file):
     pop = neat.Population(config)
     pop.add_reporter(neat.StdOutReporter(True))
     pop.add_reporter(neat.StatisticsReporter())
-    winner = pop.run(eval, 100)
+    winner = pop.run(eval, 50)
 
 
 if __name__ == '__main__':

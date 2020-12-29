@@ -17,8 +17,8 @@ class Pipe:
         self.PIPE_TOP = self.IMG_REV.get_rect(midbottom=(700, self.height - self.gap))
 
     def move(self):
-        self.PIPE_TOP.centerx -= 5
-        self.PIPE_BOTTOM.centerx -= 5
+        self.PIPE_TOP.centerx -= 3
+        self.PIPE_BOTTOM.centerx -= 3
 
     def draw(self, screen):
         screen.blit(self.IMG_REV, self.PIPE_TOP)

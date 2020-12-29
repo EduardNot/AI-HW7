@@ -46,7 +46,7 @@ def remove_pipe():
 
 def add_pipe():
     for pipe in pipes:
-        if bird.BIRD_RECT.centerx + 200 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
+        if bird.BIRD_RECT.centerx + 80 > pipe.PIPE_BOTTOM.centerx and not pipe.next_pipe:
             pipe.next_pipe = True
             return True
     return False
@@ -64,14 +64,11 @@ if __name__ == '__main__':
     BIRD_IMG = pygame.transform.scale2x(pygame.image.load('assets/bird1.png')).convert()
     BG_IMG = pygame.transform.scale2x(pygame.image.load('assets/bg.png')).convert()
     BASE_IMG = pygame.transform.scale2x(pygame.image.load('assets/base.png')).convert()
-    BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
+    BIRD_RECT = BIRD_IMG.get_rect(center=(225, 325))
     PIPE_IMG = pygame.transform.scale2x(pygame.image.load('assets/pipe.png')).convert()
     PIPE_IMG_REV = pygame.transform.flip(PIPE_IMG, False, True).convert()
     START_GAME_SUFACE = pygame.image.load('assets/message.png').convert_alpha()
     START_GAME_REC = START_GAME_SUFACE.get_rect(center=(288, 400))
-
-    SPAWNPIPE = pygame.USEREVENT
-    pygame.time.set_timer(SPAWNPIPE, 900)
 
     pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
 
@@ -80,7 +77,6 @@ if __name__ == '__main__':
     base = Base(BASE_IMG)
 
     while True:
-        print(pipes)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -90,7 +86,7 @@ if __name__ == '__main__':
                     bird.jump()
                 if event.key == pygame.K_SPACE and GAME_ACTIVE is False:
                     GAME_ACTIVE = True
-                    BIRD_RECT = BIRD_IMG.get_rect(center=(100, 325))
+                    BIRD_RECT = BIRD_IMG.get_rect(center=(225, 325))
                     bird = Bird(BIRD_IMG, BIRD_RECT)
                     pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
                     score = 0
