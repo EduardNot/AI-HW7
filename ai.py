@@ -6,10 +6,12 @@ import sys
 
 import neat
 import pygame
+import random
 
 from Bird import Bird
 from Pipe import Pipe
 from Base import Base
+from Coin import Coin
 
 WIN_WIDTH = 575
 WIN_HEIGHT = 800
@@ -29,6 +31,10 @@ PIPE_IMG = pygame.transform.scale2x(pygame.image.load('assets/pipe.png')).conver
 PIPE_IMG_REV = pygame.transform.flip(PIPE_IMG, False, True).convert()
 START_GAME_SUFACE = pygame.image.load('assets/message.png').convert_alpha()
 STAT_FONT = pygame.font.SysFont("comicsans", 50)
+
+COIN_IMG = pygame.image.load('assets/coin.png')
+COIN_IMG = pygame.transform.scale(COIN_IMG, (30,30))
+COIN_RECT = COIN_IMG.get_rect(center=(-30, 25))
 
 
 def print_alive(birds):
@@ -72,7 +78,7 @@ def add_pipe(pipes, bird):
 
 
 def eval(genomes, config):
-    global high_score
+    global high_score, COIN_RECT
 
     birds = []
     nets = []
@@ -97,6 +103,10 @@ def eval(genomes, config):
                 sys.exit()
 
         screen.blit(BG_IMG, (0, 0))
+
+        coin = Coin(COIN_IMG, COIN_RECT)
+        coin.draw(screen)
+        coin.move()
 
         pipe_idx = 0
         if len(birds) > 0:
@@ -126,8 +136,16 @@ def eval(genomes, config):
             if not passed_pipe:
                 passed_pipe = update_score(pipes, bird)
             if add_pipe(pipes, bird):
+                if COIN_RECT.centerx < -30:
+                    COIN_RECT = COIN_IMG.get_rect(center=(500, random.randint(300, 625)))
                 pipes.append(Pipe(PIPE_IMG, PIPE_IMG_REV))
+            if bird.BIRD_RECT.colliderect(coin.COIN_RECT):
+                genes[birds.index(bird)].fitness += 10
+                score += 2
+                COIN_RECT = COIN_IMG.get_rect(center=(-30, 125))
 
+        if len(birds) == 0:
+            COIN_RECT = COIN_IMG.get_rect(center=(-30, 125))
         if passed_pipe:
             score += 1
             for g in genes:

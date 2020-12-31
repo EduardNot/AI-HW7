@@ -5,10 +5,12 @@
 import sys
 
 import pygame
+import random
 
 from Bird import Bird
 from Pipe import Pipe
 from Base import Base
+from Coin import Coin
 
 WIN_WIDTH = 575
 WIN_HEIGHT = 800
@@ -69,6 +71,9 @@ if __name__ == '__main__':
     PIPE_IMG_REV = pygame.transform.flip(PIPE_IMG, False, True).convert()
     START_GAME_SUFACE = pygame.image.load('assets/message.png').convert_alpha()
     START_GAME_REC = START_GAME_SUFACE.get_rect(center=(288, 400))
+    COIN_IMG = pygame.image.load('assets/coin.png')
+    COIN_IMG = pygame.transform.scale(COIN_IMG, (30,30))
+    COIN_RECT = COIN_IMG.get_rect(center=(-30, 25))
 
     pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
 
@@ -86,6 +91,7 @@ if __name__ == '__main__':
                     bird.jump()
                 if event.key == pygame.K_SPACE and GAME_ACTIVE is False:
                     GAME_ACTIVE = True
+                    COIN_RECT = COIN_IMG.get_rect(center=(-30, 125))
                     BIRD_RECT = BIRD_IMG.get_rect(center=(225, 325))
                     bird = Bird(BIRD_IMG, BIRD_RECT)
                     pipes = [Pipe(PIPE_IMG, PIPE_IMG_REV)]
@@ -97,6 +103,10 @@ if __name__ == '__main__':
             bird.move()
             GAME_ACTIVE = bird.collision(pipes)
 
+            coin = Coin(COIN_IMG, COIN_RECT)
+            coin.draw(screen)
+            coin.move()
+
             for pipe in pipes:
                 pipe.move()
 
@@ -105,7 +115,12 @@ if __name__ == '__main__':
             if passed:
                 score += 1
             if add_pipe():
+                if COIN_RECT.centerx < -30:
+                    COIN_RECT = COIN_IMG.get_rect(center=(500, random.randint(300, 625)))
                 pipes.append(Pipe(PIPE_IMG, PIPE_IMG_REV))
+            if bird.BIRD_RECT.colliderect(coin.COIN_RECT):
+                score += 2
+                COIN_RECT = COIN_IMG.get_rect(center=(-30, 125))
         else:
             screen.blit(START_GAME_SUFACE, START_GAME_REC)
             if score > high_score:
