@@ -122,8 +122,7 @@ def eval(genomes, config):
 
             output = nets[i].activate((bird.BIRD_RECT.y,
                                        abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_TOP.bottom),
-                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top),
-                                       coin.COIN_RECT.y))
+                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top)))
             if output[0] > 0.8:
                 bird.jump()
 
