@@ -1,0 +1,3 @@
+Jupyter Notebooki jooksutamiseks on vaja Pygame ja NEAT. Selleks on vaja jooksutada järgmised käsud:
+    1) pip install pygame
+    2) pip install neat-python
