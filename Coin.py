@@ -2,6 +2,7 @@ class Coin:
 
     COIN_IMG = None
     COIN_RECT = None
+    is_Gotten = False
 
     def __init__(self, COIN_IMG, COIN_RECT):
         self.COIN_IMG = COIN_IMG

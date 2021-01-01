@@ -34,7 +34,6 @@ STAT_FONT = pygame.font.SysFont("comicsans", 50)
 
 COIN_IMG = pygame.image.load('assets/coin.png')
 COIN_IMG = pygame.transform.scale(COIN_IMG, (30,30))
-COIN_RECT = COIN_IMG.get_rect(center=(-30, 25))
 
 
 def print_alive(birds):
@@ -78,7 +77,9 @@ def add_pipe(pipes, bird):
 
 
 def eval(genomes, config):
-    global high_score, COIN_RECT
+    global high_score
+
+    COIN_RECT = COIN_IMG.get_rect(center=(-30, 25))
 
     birds = []
     nets = []
@@ -111,7 +112,6 @@ def eval(genomes, config):
         pipe_idx = 0
         if len(birds) > 0:
             if len(pipes) > 1 and pipes[0].passed:
-                # print("HERE!!!!!!!!!!!!!!!")
                 # print(f"bird {birds[0].BIRD_RECT.centerx}. pipe {pipes[0].PIPE_BOTTOM.topright}")
                 if birds[0].BIRD_RECT.centerx > pipes[0].PIPE_BOTTOM.topright[0] + 30:
                     pipe_idx = 1
@@ -122,7 +122,8 @@ def eval(genomes, config):
 
             output = nets[i].activate((bird.BIRD_RECT.y,
                                        abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_TOP.bottom),
-                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top)))
+                                       abs(bird.BIRD_RECT.y - pipes[pipe_idx].PIPE_BOTTOM.top),
+                                       coin.COIN_RECT.y))
             if output[0] > 0.8:
                 bird.jump()
 
@@ -140,8 +141,10 @@ def eval(genomes, config):
                     COIN_RECT = COIN_IMG.get_rect(center=(500, random.randint(300, 625)))
                 pipes.append(Pipe(PIPE_IMG, PIPE_IMG_REV))
             if bird.BIRD_RECT.colliderect(coin.COIN_RECT):
+                if not coin.is_Gotten:
+                    score += 2
+                    coin.is_Gotten = True
                 genes[birds.index(bird)].fitness += 10
-                score += 2
                 COIN_RECT = COIN_IMG.get_rect(center=(-30, 125))
 
         if len(birds) == 0:
